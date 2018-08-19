@@ -282,7 +282,7 @@ def parsedata(request):
         payload = data['messages']
         for message in payload:
             messai_payload = dict()
-            messai_payload['body']=message['needothers']
+            messai_payload['body']=message['detailrescue']
             messai_payload['date']=str(datetime.date.today())
             messai_payload['addr']='ADDRPH'
 
