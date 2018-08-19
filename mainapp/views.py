@@ -294,10 +294,10 @@ def parsedata(request):
                 return_data.append(r.json())
             except Exception as e:
                 return_data.append({'status':'error'})
-        return JsonResponse(return_data,safe=False)
-            # return JsonResponse(messai_payload,safe=False)
     else:
-        print('Moonchi %s'% data)
+        return_data.append({'status': 'error', 'message': 'Error while parsing the request.'
+                                                          ' Please check your request format'})
+    return JsonResponse(return_data, safe=False)
 
 def mapview(request):
     return render(request,"map.html")
