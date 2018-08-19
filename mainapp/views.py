@@ -289,7 +289,7 @@ def parsedata(request):
             # print(messai_payload)
 
             try:
-                r = requests.post('https://keralafloods.messai.in/v1/kerala/parse', json=[messai_payload])
+                r = requests.post('https://keralafloods.messai.in/v1/kerala/parse', json=[messai_payload], timeout=60)
                 r.raise_for_status()
                 return_data.append(r.json())
             except Exception as e:
