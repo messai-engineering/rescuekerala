@@ -23,6 +23,7 @@ urlpatterns = [
     path('disclaimer/', views.DisclaimerPage.as_view(), name='disclaimer'),
     path('ieee/', views.AboutIEEE.as_view(), name='aboutieee'),
     path('data/' , views.data , name="data"),
+    path('parse/' , views.parsedata , name="parsedata"),
     path('map/' , views.mapview , name="mapview"),
     path('dmodash/' , views.dmodash , name="DMODash"),
     path('dmoinfo/' , views.dmoinfo , name="DMOInfo" ),
@@ -40,4 +41,5 @@ urlpatterns = [
     path('camp_requirements/', views.camp_requirements_list, name='camp_requirements_list'),
     path('add_camp_data/', views.AddCampData.as_view(), name='camp_data'),
     path('submission_success/', views.SubmissionSuccess.as_view(), name='submission_success'),
+
 ]

@@ -26,16 +26,23 @@ from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http import Http404
 from mainapp.admin import create_csv_response
 
-class CustomForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(CustomForm, self).__init__(*args, **kwargs)
-        # for field_name, field in self.fields.items():
-        #     field.widget.attrs['class'] = 'form-control'
+from django.views.decorators.csrf import csrf_exempt
+
+import json
+import datetime
+import requests
+
 
 PER_PAGE = 100
 PAGE_LEFT = 5
 PAGE_RIGHT = 5
 PAGE_INTERMEDIATE = "50"
+
+class CustomForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CustomForm, self).__init__(*args, **kwargs)
+        # for field_name, field in self.fields.items():
+        #     field.widget.attrs['class'] = 'form-control'
 
 class CreateRequest(CreateView):
     model = Request
@@ -267,6 +274,31 @@ def mapdata(request):
     cache.set("mapdata:" + district, data, settings.CACHE_TIMEOUT)
     return JsonResponse(list(data) , safe=False)
 
+@csrf_exempt
+def parsedata(request):
+    return_data = list()
+    data = json.loads(request.body)
+    if 'messages' in data:
+        payload = data['messages']
+        for message in payload:
+            messai_payload = dict()
+            messai_payload['body']=message['needothers']
+            messai_payload['date']=str(datetime.date.today())
+            messai_payload['addr']='ADDRPH'
+
+            # print(messai_payload)
+
+            try:
+                r = requests.post('https://keralafloods.messai.in/v1/kerala/parse', json=[messai_payload])
+                r.raise_for_status()
+                return_data.append(r.json())
+            except Exception as e:
+                return_data.append({'status':'error'})
+        return JsonResponse(return_data,safe=False)
+            # return JsonResponse(messai_payload,safe=False)
+    else:
+        print('Moonchi %s'% data)
+
 def mapview(request):
     return render(request,"map.html")
 
@@ -381,7 +413,7 @@ class CampRequirementsForm(forms.ModelForm):
 class CampRequirements(SuccessMessageMixin,LoginRequiredMixin,UpdateView):
     login_url = '/login/'
     model = RescueCamp
-    template_name='mainapp/camp_requirements.html'  
+    template_name='mainapp/camp_requirements.html'
     form_class = CampRequirementsForm
     success_url = '/coordinator_home/'
     success_message = "Updated requirements saved!"
@@ -475,7 +507,7 @@ class CoordinatorCampFilter(django_filters.FilterSet):
             'district' : ['exact'],
             'name' : ['icontains']
         }
-    
+
     def __init__(self, *args, **kwargs):
         super(CoordinatorCampFilter, self).__init__(*args, **kwargs)
         if self.data == {}:
@@ -488,7 +520,7 @@ class CoordinatorCampFilter(django_filters.FilterSet):
             'district' : ['exact'],
             'name' : ['icontains']
         }
-    
+
     def __init__(self, *args, **kwargs):
         super(CoordinatorCampFilter, self).__init__(*args, **kwargs)
         if self.data == {}:
