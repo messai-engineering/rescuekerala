@@ -179,3 +179,57 @@ class RegisterContributorViewTests(TestCase):
         self.assertEqual(contributor.district, 'pkd')
         self.assertEqual(contributor.phone, '8893845901')
         self.assertEqual(contributor.address, 'Near Mosque')
+
+class ParseRescueDataTests(TestCase):
+    def setUp(self):
+        self.url = '/api/1/parse/'
+
+    def test_creation(self):
+        client = Client()
+        post_data = {
+          "messages":[
+            {
+              "id": 34764,
+              "district": "ekm",
+              "location": "east kadungalloor, 10.1098637,76.3279901",
+              "requestee": "Unknown",
+              "requestee_phone": "8136852468",
+              "latlng": "12.96384,77.6568832",
+              "latlng_accuracy": "19721 Meters",
+              "detailrescue": "VERY URGENT SITUATION,PLEASE HELP,PLEASE SHARE THIS MESSAGE,About six families,almost 21 peoples including kids, are trapped till now(its been three days: till time 1:02 am,18/08/2018)in the mentioned location.They have no food at all,extreme",
+              "needothers": "10.1098637,76.3279901",
+              "status": "new",
+              "supply_details": "",
+              "dateadded": "2018-08-18T05:38:10.589Z"
+            }
+          ]
+        }
+
+        expected_response_data=[
+            [
+                {
+                    "data": {
+                        "unclassified": [
+                            "#VERY URGENT SITUATION,PLEASE HELP,PLEASE SHARE THIS MESSAGE,About six families,almost",
+                            "#including",
+                            "#trapped till now(its been three days: till time",
+                            "#)in the mentioned location",
+                            "#food at all,extreme"
+                        ],
+                        "values": {
+                            "date": "2018-08-18 01:02:00",
+                            "people_num": "21",
+                            "people_type": "people",
+                            "people_special": "child"
+                        },
+                        "category": "Notification",
+                        "tags": {}
+                    },
+                    "status": "success"
+                }
+            ]
+        ]
+        response = client.post(self.url, post_data,content_type="application/json")
+        response_data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_data,expected_response_data)

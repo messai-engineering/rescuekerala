@@ -407,3 +407,13 @@ class ReliefCampData(models.Model):
 
     def __str__(self):
         return self.description[:100]
+
+class ParsedSMSData(models.Model):
+    parsed_count = models.IntegerField(null=True,blank=True,default=0,)
+    max_id_parsed = models.IntegerField(null=True,blank=True,default=0,)
+    parsed_success_count = models.IntegerField(null=True,blank=True,default=0,)
+    parsed_failure_count = models.IntegerField(null=True,blank=True,default=0,)
+    parsed_error_count = models.IntegerField(null=True,blank=True,default=0,)
+
+    def __str__(self):
+        return "Messages parsed - {}, Successfully parsed - {}".format(self.parsed_count,self.parsed_success_count)

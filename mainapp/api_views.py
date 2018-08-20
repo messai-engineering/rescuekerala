@@ -1,3 +1,8 @@
+import datetime
+import json
+
+import requests
+
 from .models import Person, RescueCamp
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
@@ -77,3 +82,31 @@ class CampList(APIView):
 
         else:
             return Response({'error' : 'District Code is Required'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ParseData(APIView):
+    http_method_names = ['post']
+    # unsecured public API
+    permission_classes = ()
+
+    def post(self,request):
+        return_data = list()
+        data = json.loads(request.body)
+        if 'messages' in data:
+            payload = data['messages']
+            for message in payload:
+                messai_payload = dict()
+                messai_payload['body']=message['detailrescue']
+                messai_payload['date']=str(datetime.date.today())
+                messai_payload['addr']='ADDRPH'
+
+                try:
+                    r = requests.post('https://keralafloods.messai.in/v1/kerala/parse', json=[messai_payload], timeout=60)
+                    r.raise_for_status()
+                    return_data.append(r.json())
+                except Exception as e:
+                    return_data.append({'status':'error'})
+        else:
+            return_data.append({'status': 'error', 'message': 'Error while parsing the request.'
+                                                              ' Please check your request format'})
+        return Response(return_data)

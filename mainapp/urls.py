@@ -23,7 +23,6 @@ urlpatterns = [
     path('disclaimer/', views.DisclaimerPage.as_view(), name='disclaimer'),
     path('ieee/', views.AboutIEEE.as_view(), name='aboutieee'),
     path('data/' , views.data , name="data"),
-    path('parse/' , views.parsedata , name="parsedata"),
     path('map/' , views.mapview , name="mapview"),
     path('dmodash/' , views.dmodash , name="DMODash"),
     path('dmoinfo/' , views.dmoinfo , name="DMOInfo" ),

@@ -26,11 +26,6 @@ from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http import Http404
 from mainapp.admin import create_csv_response
 
-from django.views.decorators.csrf import csrf_exempt
-
-import json
-import datetime
-import requests
 
 
 PER_PAGE = 100
@@ -274,30 +269,7 @@ def mapdata(request):
     cache.set("mapdata:" + district, data, settings.CACHE_TIMEOUT)
     return JsonResponse(list(data) , safe=False)
 
-@csrf_exempt
-def parsedata(request):
-    return_data = list()
-    data = json.loads(request.body)
-    if 'messages' in data:
-        payload = data['messages']
-        for message in payload:
-            messai_payload = dict()
-            messai_payload['body']=message['detailrescue']
-            messai_payload['date']=str(datetime.date.today())
-            messai_payload['addr']='ADDRPH'
 
-            # print(messai_payload)
-
-            try:
-                r = requests.post('https://keralafloods.messai.in/v1/kerala/parse', json=[messai_payload], timeout=60)
-                r.raise_for_status()
-                return_data.append(r.json())
-            except Exception as e:
-                return_data.append({'status':'error'})
-    else:
-        return_data.append({'status': 'error', 'message': 'Error while parsing the request.'
-                                                          ' Please check your request format'})
-    return JsonResponse(return_data, safe=False)
 
 def mapview(request):
     return render(request,"map.html")
